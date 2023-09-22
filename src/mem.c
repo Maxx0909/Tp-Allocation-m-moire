@@ -9,6 +9,24 @@
 #include "mem_os.h"
 #include <assert.h>
 
+//définition de la structure des bloc libre : 
+
+struct mem_free_block_s {
+	size_t size;
+	struct mem_free_block_s * next;
+
+};
+
+//définition de la structure des bloc occupés :
+
+typedef struct mem_busy_block_s {
+    size_t size;
+} mem_busy_block_t;
+
+
+//def le tout premier bloc libre (possible variable globale)
+
+
 //-------------------------------------------------------------
 // mem_init
 //-------------------------------------------------------------
@@ -18,6 +36,14 @@
 **/
 void mem_init() {
     //TODO: implement
+
+	//utiliser mem_space_get_size()
+
+	//condition si déjà un bloc présent doit tiut réinit
+
+
+
+
 	assert(! "NOT IMPLEMENTED !");
 }
 
