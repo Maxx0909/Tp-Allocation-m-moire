@@ -9,23 +9,27 @@
 #include "mem_os.h"
 #include <assert.h>
 
-//définition de la structure des bloc libre : 
+//définition de la structure des blocs libre 
+typedef struct mem_free_block_s {
+	size_t size_free_block;
+	mem_free_block_t * ptr_next_free_block;
+}mem_free_block_t;
 
-struct mem_free_block_s {
-	size_t size;
-	struct mem_free_block_s * next;
-
-};
-
-//définition de la structure des bloc occupés :
-
+//définition de la structure des blocs occupés
 typedef struct mem_busy_block_s {
-    size_t size;
+    size_t size_busy_block;
 } mem_busy_block_t;
 
 
-//def le tout premier bloc libre (possible variable globale)
+//définition de la mémoire
+typedef struct memory_s {
+	char * ptr_memory;
+	size_t size_memory;
+}memory_t;
 
+
+//information pour savoir où est le premier bloc libre
+memory_t glb_memory;
 
 //-------------------------------------------------------------
 // mem_init
