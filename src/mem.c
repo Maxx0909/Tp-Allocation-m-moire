@@ -41,14 +41,33 @@ memory_t glb_memory;
 void mem_init() {
     //TODO: implement
 
-	//utiliser mem_space_get_size()
+	glb_memory.size_memory = mem_space_get_size();
 
-	//condition si déjà un bloc présent doit tiut réinit
+	//si la mémoire est déjà alloué on réinitilaise tout
+	if(glb_memory.ptr_memory){
+		free(glb_memory.ptr_memory);
+		
+		//TODO: fonction de recherche à réinitialiser
+
+	}
+
+	glb_memory.ptr_memory = malloc(mem_space_get_size());
 
 
+	//TODO:fct de rechehrche à initialiser
 
 
-	assert(! "NOT IMPLEMENTED !");
+		//init du premier et unique bloc dans la mémoire
+
+	//pointeur sur le début de la mémoire au départ le même que la structure
+	mem_free_block_t * first_memory_bloc = (mem_free_block_t *) glb_memory.ptr_memory;
+
+	first_memory_bloc->size_free_block = glb_memory.size_memory - sizeof(mem_free_block_t *);
+
+	first_memory_bloc->ptr_next_free_block = NULL;
+
+	
+	//assert(! "NOT IMPLEMENTED !");
 }
 
 //-------------------------------------------------------------
