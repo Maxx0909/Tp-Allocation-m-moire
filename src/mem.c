@@ -65,7 +65,7 @@ void mem_init() {
 	//TODO:fct de rechehrche à initialiser
 	
 	
-	//assert(! "NOT IMPLEMENTED !");
+	assert(! "NOT IMPLEMENTED !");
 }
 
 //-------------------------------------------------------------
@@ -106,40 +106,28 @@ void mem_free(void *zone) {
 // mem_show
 //-------------------------------------------------------------
 void mem_show(void (*print)(void *, size_t, int free)) {
-    //TODO: implement
 
-/*
-	//récup taille mémoire
-	size_t size_memory = mem_space_get_size();
 
 	//récup pointeur au début mémoire
 	char * ptr_memory = mem_space_get_addr();
-
 	char * ptr_current = ptr_memory;
-*/
+	char * end_memory = ptr_memory + mem_space_get_size();
+	mem_free_block_t *free_b = glb_memory.first_free_block;
 
-/*
-	//tq pas arrivé fin mémoire
-	while(ptr_current != (ptr_memory + size_memory)){
-
-		//si le bloc est libre
-		if(ptr_current == ){
-			print("Adresse : %p", ptr_current, " , taille : %zu", ptr_current->size_free_block, " , Adresse bloc suivant : %p",  ptr_current->ptr_next_free_block, " , occupé : %d",  1);
-
-			//on passe au bloc suivant
-			ptr_current = ptr_current + (char *) ptr_current->size_free_block;
-		
-		//si le bloc est occupé
+	//boucle tant que fin non atteinte
+	while(ptr_current != end_memory){
+		if (ptr_current == free_b){
+			print(ptr_current,free_b->size_free_block,1);
+			ptr_current = ptr_current + free_b->size_free_block;
+			free_b = free_b->ptr_next_free_block;
 		} else {
-			print("Adresse : %p", ptr_current, " , taille : %zu", ptr_current->size_busy_block, " , occupé : %d", 0);
-
-			//on passe au bloc suivant
-			ptr_current = ptr_current + ptr_current->size_busy_block;
+			mem_busy_block_t busyZone = *(mem_busy_block_t*) ptr_current;
+			print(ptr_current,busyZone.size_busy_block,0);
+			ptr_current = ptr_current + busyZone.size_busy_block;
 		}
-
-	
 	}
-*/
+
+
 	//assert(! "NOT IMPLEMENTED !");
 }
 
