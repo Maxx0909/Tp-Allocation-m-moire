@@ -21,15 +21,23 @@ typedef struct mem_busy_block_s {
 } mem_busy_block_t;
 
 
+/*
 //définition de la mémoire
 typedef struct memory_s {
 	char * ptr_memory;
 	size_t size_memory;
 }memory_t;
 
+*/
+
+typedef struct header_memory_s{
+	mem_free_block_t * first_free_block;
+	size_t size_memory;
+}header_memory_t;
+
 
 //information pour savoir où est le premier bloc libre
-memory_t glb_memory;
+header_memory_t glb_memory;
 
 //-------------------------------------------------------------
 // mem_init
@@ -41,31 +49,21 @@ memory_t glb_memory;
 void mem_init() {
     //TODO: implement
 
-	glb_memory.size_memory = mem_space_get_size();
+	//init de la taille de la mémoire
+	glb_memory.size_memory = mem_space_get_size()-1;
 
-	//si la mémoire est déjà alloué on réinitilaise tout
-	if(glb_memory.ptr_memory){
-		free(glb_memory.ptr_memory);
-		
-		//TODO: fonction de recherche à réinitialiser
-
-	}
-
-	glb_memory.ptr_memory = malloc(mem_space_get_size());
-
-
-	//TODO:fct de rechehrche à initialiser
-
-
-		//init du premier et unique bloc dans la mémoire
-
-	//pointeur sur le début de la mémoire au départ le même que la structure
-	mem_free_block_t * first_memory_bloc = (mem_free_block_t *) glb_memory.ptr_memory;
-
-	first_memory_bloc->size_free_block = glb_memory.size_memory - sizeof(mem_free_block_t *);
+	//init du premier et unique bloc dans la mémoire
+	mem_free_block_t * first_memory_bloc = (mem_free_block_t *)  mem_space_get_addr();
 
 	first_memory_bloc->ptr_next_free_block = NULL;
 
+	first_memory_bloc->size_free_block = glb_memory.size_memory - sizeof(mem_free_block_t *);
+
+	//init l'adresse de la mémoire
+	glb_memory.first_free_block = first_memory_bloc;
+
+	//TODO:fct de rechehrche à initialiser
+	
 	
 	//assert(! "NOT IMPLEMENTED !");
 }
@@ -110,6 +108,7 @@ void mem_free(void *zone) {
 void mem_show(void (*print)(void *, size_t, int free)) {
     //TODO: implement
 
+/*
 	//récup taille mémoire
 	size_t size_memory = mem_space_get_size();
 
@@ -117,7 +116,9 @@ void mem_show(void (*print)(void *, size_t, int free)) {
 	char * ptr_memory = mem_space_get_addr();
 
 	char * ptr_current = ptr_memory;
+*/
 
+/*
 	//tq pas arrivé fin mémoire
 	while(ptr_current != (ptr_memory + size_memory)){
 
@@ -138,7 +139,7 @@ void mem_show(void (*print)(void *, size_t, int free)) {
 
 	
 	}
-
+*/
 	//assert(! "NOT IMPLEMENTED !");
 }
 
