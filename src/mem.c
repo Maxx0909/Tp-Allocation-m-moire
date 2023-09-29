@@ -11,27 +11,18 @@
 
 //définition de la structure des blocs libre 
 typedef struct mem_free_block_s {
-	size_t size_free_block;
-	mem_free_block_t * ptr_next_free_block;
+	size_t size_total_fb;
+	mem_free_block_t * ptr_next_fb;
 }mem_free_block_t;
 
 //définition de la structure des blocs occupés
 typedef struct mem_busy_block_s {
-    size_t size_busy_block;
+    size_t size_total_bb;
 } mem_busy_block_t;
 
-
-/*
 //définition de la mémoire
-typedef struct memory_s {
-	char * ptr_memory;
-	size_t size_memory;
-}memory_t;
-
-*/
-
 typedef struct header_memory_s{
-	mem_free_block_t * first_free_block;
+	mem_free_block_t * first_fb;
 	size_t size_memory;
 }header_memory_t;
 
@@ -55,17 +46,17 @@ void mem_init() {
 	//init du premier et unique bloc dans la mémoire
 	mem_free_block_t * first_memory_bloc = (mem_free_block_t *)  mem_space_get_addr();
 
-	first_memory_bloc->ptr_next_free_block = NULL;
+	first_memory_bloc->ptr_next_fb = NULL;
 
-	first_memory_bloc->size_free_block = glb_memory.size_memory - sizeof(mem_free_block_t *);
+	first_memory_bloc->size_total_fb = glb_memory.size_memory - sizeof(mem_free_block_t *);
 
 	//init l'adresse de la mémoire
-	glb_memory.first_free_block = first_memory_bloc;
+	glb_memory.first_fb = first_memory_bloc;
 
 	//TODO:fct de rechehrche à initialiser
 	
 	
-	assert(! "NOT IMPLEMENTED !");
+	//assert(! "NOT IMPLEMENTED !");
 }
 
 //-------------------------------------------------------------
@@ -112,18 +103,18 @@ void mem_show(void (*print)(void *, size_t, int free)) {
 	char * ptr_memory = mem_space_get_addr();
 	char * ptr_current = ptr_memory;
 	char * end_memory = ptr_memory + mem_space_get_size();
-	mem_free_block_t *free_b = glb_memory.first_free_block;
+	mem_free_block_t *free_b = glb_memory.first_fb;
 
 	//boucle tant que fin non atteinte
 	while(ptr_current != end_memory){
-		if (ptr_current == free_b){
-			print(ptr_current,free_b->size_free_block,1);
-			ptr_current = ptr_current + free_b->size_free_block;
-			free_b = free_b->ptr_next_free_block;
+		if (ptr_current == (char *) free_b){
+			print(ptr_current,free_b->size_total_fb,1);
+			ptr_current = ptr_current + free_b->size_total_fb;
+			free_b = free_b->ptr_next_fb;
 		} else {
 			mem_busy_block_t busyZone = *(mem_busy_block_t*) ptr_current;
-			print(ptr_current,busyZone.size_busy_block,0);
-			ptr_current = ptr_current + busyZone.size_busy_block;
+			print(ptr_current,busyZone.size_total_bb,0);
+			ptr_current = ptr_current + busyZone.size_total_bb;
 		}
 	}
 
