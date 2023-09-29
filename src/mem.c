@@ -67,8 +67,41 @@ void mem_init() {
 **/
 void *mem_alloc(size_t size) {
 	//TODO: implement
-	assert(! "NOT IMPLEMENTED !");
-    return NULL;
+
+	//on récupére le tout premier bloc libre
+	mem_free_block_t * current = glb_memory.first_fb;
+
+	mem_free_block_t * ptr_free_block_before = NULL;
+	
+	//tq le bloc libre est trop petit et qu'il existe
+	while(current && current->size_total_fb < (size + sizeof(mem_busy_block_t))){
+		ptr_free_block_before = current;
+		current = current->ptr_next_fb;
+	}
+
+	//pas de bloc assez grand
+	if(!current){
+		return NULL;
+	}
+
+	// bloc de taille assez grand trouvé à la postition courante
+
+	//création d'un bloc busy
+	mem_busy_block_t * new_busy_bloc = (mem_busy_block_t *) current;
+
+	new_busy_bloc->size_total_bb = size;
+
+	//raccorder la liste chainé
+	if(ptr_free_block_before){
+		ptr_free_block_before->ptr_next_fb = current->ptr_next_fb;
+	} else {
+		//si current est le premier bloc
+		glb_memory.first_fb = current->ptr_next_fb;
+	}
+
+	return (void *) new_busy_bloc;
+
+	//assert(! "NOT IMPLEMENTED !");
 }
 
 //-------------------------------------------------------------
