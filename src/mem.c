@@ -135,7 +135,10 @@ void mem_show(void (*print)(void *, size_t, int free)) {
 	//récup pointeur au début mémoire
 	char * ptr_memory = mem_space_get_addr();
 	char * ptr_current = ptr_memory;
-	char * end_memory = ptr_memory + mem_space_get_size();
+	// COMPRENDRE POURQUOI -9 (1bit + 1 octet ??)
+	size_t size_mem = mem_space_get_size();
+	char * end_memory = ptr_memory + size_mem - 9;
+	//
 	mem_free_block_t *free_b = glb_memory.first_fb;
 
 	//boucle tant que fin non atteinte
