@@ -203,21 +203,52 @@ void mem_set_fit_handler(mem_fit_function_t *mff) {
 //-------------------------------------------------------------
 // Stratégies d'allocation
 //-------------------------------------------------------------
+//renvoi du premier bloc libre de taille supérieur ou égale à wanted_size
 mem_free_block_t *mem_first_fit(mem_free_block_t *first_free_block, size_t wanted_size) {
-    //TODO: implement
-	assert(! "NOT IMPLEMENTED !");
+
+	mem_free_block_t *ptr_current = first_free_block;
+	//parcours de la liste des blocs libres
+	while (ptr_current != NULL){
+		if (ptr_current->size_total_fb >= wanted_size){
+			return ptr_current;
+		}
+		ptr_current = ptr_current->ptr_next_fb;
+	}
+	//il n'existe pas
 	return NULL;
 }
 //-------------------------------------------------------------
+//renvoi du plus petit bloc libre de taille supérieur ou égale à wanted_size
 mem_free_block_t *mem_best_fit(mem_free_block_t *first_free_block, size_t wanted_size) {
-    //TODO: implement
-	assert(! "NOT IMPLEMENTED !");
-	return NULL;
+	mem_free_block_t *ptr_current = first_free_block;
+	mem_free_block_t *min_fb = first_free_block;
+	//Comment utiliser calcul du dessous ?
+	//int size = first_free_block->size_total_fb - wanted_size;
+
+	while (ptr_current != NULL){
+		if (ptr_current->size_total_fb >= wanted_size && ptr_current->size_total_fb < min_fb->size_total_fb){
+			min_fb = ptr_current;
+		}
+		ptr_current = ptr_current->ptr_next_fb;
+	}
+	// TODO : Comment retourner NULL ?
+	return min_fb;
 }
 
 //-------------------------------------------------------------
+//renvoi du plus petit bloc libre de taille supérieur ou égale à wanted_size
 mem_free_block_t *mem_worst_fit(mem_free_block_t *first_free_block, size_t wanted_size) {
-    //TODO: implement
-	assert(! "NOT IMPLEMENTED !");
-	return NULL;
+   	mem_free_block_t *ptr_current = first_free_block;
+	mem_free_block_t *max_fb = first_free_block;
+	//Comment utiliser calcul du dessous ?
+	//int size = first_free_block->size_total_fb - wanted_size;
+
+	while (ptr_current != NULL){
+		if (ptr_current->size_total_fb >= wanted_size && ptr_current->size_total_fb > max_fb->size_total_fb){
+			max_fb = ptr_current;
+		}
+		ptr_current = ptr_current->ptr_next_fb;
+	}
+	// TODO : Comment retourner NULL ?
+	return max_fb;
 }
