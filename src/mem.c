@@ -71,6 +71,7 @@ void *mem_alloc(size_t size) {
 	//on récupére le tout premier bloc libre
 	mem_free_block_t * current = glb_memory.first_fb;
 
+	//variable pour stocker le bloc libre avant le courant
 	mem_free_block_t * ptr_free_block_before = NULL;
 	
 	//tq le bloc libre est trop petit et qu'il existe
@@ -84,19 +85,47 @@ void *mem_alloc(size_t size) {
 		return NULL;
 	}
 
-	// bloc de taille assez grand trouvé à la postition courante
+		// bloc de taille assez grand trouvé à la postition courante
 
 	//création d'un bloc busy
 	mem_busy_block_t * new_busy_bloc = (mem_busy_block_t *) current;
 
-	new_busy_bloc->size_total_bb = size;
+	new_busy_bloc->size_total_bb = size + sizeof(mem_busy_block_t);
 
-	//raccorder la liste chainé
-	if(ptr_free_block_before){
-		ptr_free_block_before->ptr_next_fb = current->ptr_next_fb;
+	//calcul de la taille restante pour s'assurer de pouvoir inserer un bloc libre après le bloc occupé
+	int remaning_size = current->size_total_fb - new_busy_bloc->size_total_bb;
+	
+	//si la taille est suffisante
+	if(remaning_size > sizeof(mem_free_block_t)){
+		//création d'un nouveau bloc libre
+		mem_free_block_t * new_free_bloc;
+		
+		new_free_bloc = (mem_free_block_t *) ((char *) current + size + sizeof(mem_busy_block_t));
+
+		//taille nouveau bloc libre
+		new_free_bloc->size_total_fb = current->size_total_fb - sizeof(new_busy_bloc) - size;
+
+			//raccorder la liste chainée
+		//si current pas le premier bloc
+		if(ptr_free_block_before){
+			ptr_free_block_before->ptr_next_fb = new_free_bloc;
+			new_free_bloc->ptr_next_fb = current->ptr_next_fb;
+		} else {
+			//si current est le premier bloc
+			glb_memory.first_fb = new_free_bloc;
+			new_free_bloc->ptr_next_fb = current->ptr_next_fb;
+		}
+
 	} else {
-		//si current est le premier bloc
-		glb_memory.first_fb = current->ptr_next_fb;
+		// si la taille n'est pas suffisante on ne crée pas de nouveau bloc libre
+
+		// on raccorde la liste chainée
+		if(ptr_free_block_before){
+			ptr_free_block_before->ptr_next_fb = current->ptr_next_fb;
+		} else {
+			glb_memory.first_fb = current->ptr_next_fb;
+		}
+		
 	}
 
 	return (void *) new_busy_bloc;
