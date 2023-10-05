@@ -93,7 +93,7 @@ void *mem_alloc(size_t size) {
 	new_busy_bloc->size_total_bb = size + sizeof(mem_busy_block_t);
 
 	//calcul de la taille restante pour s'assurer de pouvoir inserer un bloc libre après le bloc occupé
-	int remaning_size = current->size_total_fb - new_busy_bloc->size_total_bb;
+	size_t remaning_size = current->size_total_fb - new_busy_bloc->size_total_bb;
 	
 	//si la taille est suffisante
 	if(remaning_size > sizeof(mem_free_block_t)){
@@ -103,7 +103,7 @@ void *mem_alloc(size_t size) {
 		new_free_bloc = (mem_free_block_t *) ((char *) current + size + sizeof(mem_busy_block_t));
 
 		//taille nouveau bloc libre
-		new_free_bloc->size_total_fb = current->size_total_fb - sizeof(new_busy_bloc) - size;
+		new_free_bloc->size_total_fb = current->size_total_fb - sizeof(mem_busy_block_t) - size;
 
 			//raccorder la liste chainée
 		//si current pas le premier bloc
@@ -128,7 +128,8 @@ void *mem_alloc(size_t size) {
 		
 	}
 
-	return (void *) new_busy_bloc;
+	//retourne l'adresse du bloc occupé et pas l'adresse de la structure de gestion
+	return (void *) (new_busy_bloc + sizeof(mem_busy_block_t));
 
 	//assert(! "NOT IMPLEMENTED !");
 }
