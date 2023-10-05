@@ -82,6 +82,7 @@ void *mem_alloc(size_t size) {
 
 	//pas de bloc assez grand
 	if(!current){
+		sprintf(stderr,"Erreur allocation : Pas de bloc assez grand\n");
 		return NULL;
 	}
 
@@ -126,6 +127,9 @@ void *mem_alloc(size_t size) {
 			glb_memory.first_fb = current->ptr_next_fb;
 		}
 		
+		//on donne le reste qui ne peut pas être utilisé au bloc occupé
+		new_busy_bloc->size_total_bb = new_busy_bloc->size_total_bb + remaning_size;
+
 	}
 
 	//retourne l'adresse du bloc occupé et pas l'adresse de la structure de gestion
