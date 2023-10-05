@@ -82,7 +82,7 @@ void *mem_alloc(size_t size) {
 
 	//pas de bloc assez grand
 	if(!current){
-		sprintf(stderr,"Erreur allocation : Pas de bloc assez grand\n");
+		fprintf(stderr,"Erreur allocation : Pas de bloc assez grand\n");
 		return NULL;
 	}
 
