@@ -68,6 +68,18 @@ void mem_init() {
 void *mem_alloc(size_t size) {
 	//TODO: implement
 
+	//gérer cas demande allouer 0 octet
+	if(size <= 0){
+		fprintf(stderr,"Erreur allocation : Demande d'allouer 0 octets\n");
+		return NULL;
+	}
+
+	//gérer le fait que la taille soit bien un multiple de 8 pr alignement mémoire
+	if(size %8 != 0){
+		size_t size_to_add = 8 - size % 8;
+		size += size_to_add;
+	}
+
 	//on récupére le tout premier bloc libre
 	mem_free_block_t * current = glb_memory.first_fb;
 
