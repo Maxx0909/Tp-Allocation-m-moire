@@ -78,19 +78,19 @@ void *mem_alloc(size_t size) {
 	}
 
 	//on récupére le tout premier bloc libre
-	mem_free_block_t * current = glb_memory.first_fb;
+	mem_free_block_t * free_b = glb_memory.first_fb;
 
-	//variable pour stocker le bloc libre avant le courant
+	//variable pour stocker le bloc libre avant celui courant
 	mem_free_block_t * ptr_free_block_before = NULL;
 	
 	//tq le bloc libre est trop petit et qu'il existe
-	while(current && current->size_total_fb < (size + sizeof(mem_busy_block_t))){
-		ptr_free_block_before = current;
-		current = current->ptr_next_fb;
+	while(free_b && free_b->size_total_fb < (size + sizeof(mem_busy_block_t))){
+		ptr_free_block_before = free_b;
+		free_b = free_b->ptr_next_fb;
 	}
 
 	//pas de bloc assez grand
-	if(!current){
+	if(!free_b){
 		fprintf(stderr,"Erreur allocation : Pas de bloc assez grand\n");
 		return NULL;
 	}
@@ -98,10 +98,10 @@ void *mem_alloc(size_t size) {
 		// bloc de taille assez grand trouvé à la postition courante
 
 	//conserver la taille du bloc libre
-	size_t size_fb = current->size_total_fb;
+	size_t size_fb = free_b->size_total_fb;
 
 	//création d'un bloc busy
-	mem_busy_block_t * new_busy_bloc = (mem_busy_block_t *) current;
+	mem_busy_block_t * new_busy_bloc = (mem_busy_block_t *) free_b;
 
 	new_busy_bloc->size_total_bb = size + sizeof(mem_busy_block_t);
 
@@ -113,21 +113,22 @@ void *mem_alloc(size_t size) {
 	if(remaning_size > sizeof(mem_free_block_t)){
 		//création d'un nouveau bloc libre
 		mem_free_block_t * new_free_bloc;
-		
-		new_free_bloc = (mem_free_block_t *) ( current + size + sizeof(mem_busy_block_t));
+
+		//ici cast en void* pour éviter la multiplication par la taille de la struct
+		new_free_bloc = (mem_free_block_t *) ( (void *)free_b + new_busy_bloc->size_total_bb);
 
 		//taille nouveau bloc libre
-		new_free_bloc->size_total_fb = size_fb - sizeof(mem_busy_block_t) - size;
+		new_free_bloc->size_total_fb = size_fb - new_busy_bloc->size_total_bb;
 
 			//raccorder la liste chainée
-		//si current pas le premier bloc
+		//si free_b pas le premier bloc
 		if(ptr_free_block_before){
 			ptr_free_block_before->ptr_next_fb = new_free_bloc;
-			new_free_bloc->ptr_next_fb = current->ptr_next_fb;
+			new_free_bloc->ptr_next_fb = free_b->ptr_next_fb;
 		} else {
-			//si current est le premier bloc
+			//si free_b est le premier bloc
 			glb_memory.first_fb = new_free_bloc;
-			new_free_bloc->ptr_next_fb = current->ptr_next_fb;
+			new_free_bloc->ptr_next_fb = free_b->ptr_next_fb;
 		}
 
 	} else {
@@ -135,9 +136,9 @@ void *mem_alloc(size_t size) {
 
 		// on raccorde la liste chainée
 		if(ptr_free_block_before){
-			ptr_free_block_before->ptr_next_fb = current->ptr_next_fb;
+			ptr_free_block_before->ptr_next_fb = free_b->ptr_next_fb;
 		} else {
-			glb_memory.first_fb = current->ptr_next_fb;
+			glb_memory.first_fb = free_b->ptr_next_fb;
 		}
 		
 		//on donne le reste qui ne peut pas être utilisé au bloc occupé
@@ -145,8 +146,8 @@ void *mem_alloc(size_t size) {
 
 	}
 
-	//retourne l'adresse du bloc occupé et pas l'adresse de la structure de gestion
-	return (void *) (new_busy_bloc + sizeof(mem_busy_block_t));
+	//retourne l'adresse du début des données et pas l'adresse de la structure de gestion
+	return (void *) (new_busy_bloc + 1); // +1 car multiplication de taille sizeof(mem_busy_bloc)
 
 	//assert(! "NOT IMPLEMENTED !");
 }
@@ -195,9 +196,9 @@ void mem_show(void (*print)(void *, size_t, int free)) {
 			ptr_current = ptr_current + free_b->size_total_fb;
 			free_b = free_b->ptr_next_fb;
 		} else {
-			mem_busy_block_t busyZone = *(mem_busy_block_t*) ptr_current;
-			print(ptr_current,busyZone.size_total_bb,0);
-			ptr_current = ptr_current + busyZone.size_total_bb;
+			mem_busy_block_t *busyZone = (mem_busy_block_t*) ptr_current;
+			print(ptr_current,busyZone->size_total_bb,0);
+			ptr_current = ptr_current + busyZone->size_total_bb;
 		}
 	}
 }
