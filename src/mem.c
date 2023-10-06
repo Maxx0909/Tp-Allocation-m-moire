@@ -9,6 +9,9 @@
 #include "mem_os.h"
 #include <assert.h>
 
+//macro pour l'alignement mémoire en fonction de l'architecture de la machine
+#define ALIGNEMENT 8 
+
 //définition de la structure des blocs libre 
 typedef struct mem_free_block_s {
 	size_t size_total_fb;
@@ -71,9 +74,9 @@ void *mem_alloc(size_t size) {
 		return NULL;
 	}
 
-	//gérer le fait que la taille soit bien un multiple de 8 pr alignement mémoire
-	if(size %8 != 0){
-		size_t size_to_add = 8 - size % 8;
+	//gérer le fait que la taille soit bien un multiple de ALIGNEMENT pr alignement mémoire
+	if(size % ALIGNEMENT != 0){
+		size_t size_to_add = ALIGNEMENT - size % ALIGNEMENT;
 		size += size_to_add;
 	}
 
@@ -169,7 +172,48 @@ size_t mem_get_size(void * zone)
 **/
 void mem_free(void *zone) {
     //TODO: implement
-	assert(! "NOT IMPLEMENTED !");
+
+	//var pour garder le bloc précédent
+	mem_free_block_t * free_precedent_block = NULL;
+
+	//on récupére le tout premier bloc libre
+	mem_free_block_t * free_b = glb_memory.first_fb;
+	
+
+	//converti le pointeur de la zone en un pointeur de bloc occupé
+	mem_busy_block_t * ptr_busy_bloc = (mem_busy_block_t *) zone;
+
+
+			//4 cas à prendre en compte
+
+		//1 : occupé à gauche et à droite => 1 seul zone à free et raccorder dans la liste
+
+	//création du nouveau free bloc
+	mem_free_block_t * new_free_block;
+
+	new_free_block->size_total_fb = sizeof(mem_free_block_t) + ptr_busy_bloc->size_total_bb;
+
+		//raccorder dans la liste chainée
+
+	//cas où notre fb devient le premier fb
+
+	//cas où notre fb devient le dernier fb
+
+	//cas où notre fb il faut inserer entre 2 fb
+
+
+
+		//2 : occupé à droite libre à gauche => fusion à gauche
+
+		//3 : occupé à gauche libre à droite => fusion à droite + supprimer bloc libre droite
+
+		//4 : libre à gauche et droite => fusion à droite et à gauche
+
+
+
+
+
+	//assert(! "NOT IMPLEMENTED !");
 }
 
 //-------------------------------------------------------------
