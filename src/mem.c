@@ -24,6 +24,7 @@ typedef struct mem_busy_block_s {
 typedef struct header_memory_s{
 	mem_free_block_t * first_fb;
 	size_t size_memory;
+	mem_fit_function_t *fit_fct;
 }header_memory_t;
 
 
@@ -38,7 +39,6 @@ header_memory_t glb_memory;
  * If already init it will re-init.
 **/
 void mem_init() {
-    //TODO: implement
 
 	//init de la taille de la mémoire
 	glb_memory.size_memory = mem_space_get_size();
@@ -53,10 +53,7 @@ void mem_init() {
 	//init l'adresse de la mémoire
 	glb_memory.first_fb = first_memory_bloc;
 
-	//TODO:fct de rechehrche à initialiser
-	
-	
-	//assert(! "NOT IMPLEMENTED !");
+	mem_set_fit_handler(&mem_first_fit);
 }
 
 //-------------------------------------------------------------
@@ -185,9 +182,9 @@ void mem_show(void (*print)(void *, size_t, int free)) {
 	//récup pointeur au début mémoire
 	char * ptr_memory = mem_space_get_addr();
 	char * ptr_current = ptr_memory;
-	// COMPRENDRE POURQUOI -9 (1bit + 1 octet ??)
+
 	size_t size_mem = mem_space_get_size();
-	char * end_memory = ptr_memory + size_mem - 9;
+	char * end_memory = ptr_memory + size_mem;
 	//
 	mem_free_block_t *free_b = glb_memory.first_fb;
 
@@ -203,17 +200,14 @@ void mem_show(void (*print)(void *, size_t, int free)) {
 			ptr_current = ptr_current + busyZone.size_total_bb;
 		}
 	}
-
-
-	//assert(! "NOT IMPLEMENTED !");
 }
 
 //-------------------------------------------------------------
 // mem_fit
 //-------------------------------------------------------------
+// sauvegarde du type d'allocation choisie
 void mem_set_fit_handler(mem_fit_function_t *mff) {
-	//TODO: implement
-	assert(! "NOT IMPLEMENTED !");
+	glb_memory.fit_fct = mff;
 }
 
 //-------------------------------------------------------------
@@ -222,10 +216,8 @@ void mem_set_fit_handler(mem_fit_function_t *mff) {
 //renvoi du premier bloc libre de taille supérieur ou égale à wanted_size
 mem_free_block_t *mem_first_fit(mem_free_block_t *first_free_block, size_t wanted_size) {
 
-
-	assert(! "NOT IMPLEMENTED !");
-
 	mem_free_block_t *ptr_current = first_free_block;
+	//TODO : sortir le return de la boucle si possible
 	//parcours de la liste des blocs libres
 	while (ptr_current != NULL){
 		if (ptr_current->size_total_fb >= wanted_size){
@@ -240,40 +232,44 @@ mem_free_block_t *mem_first_fit(mem_free_block_t *first_free_block, size_t wante
 //renvoi du plus petit bloc libre de taille supérieur ou égale à wanted_size
 mem_free_block_t *mem_best_fit(mem_free_block_t *first_free_block, size_t wanted_size) {
 
-	assert(! "NOT IMPLEMENTED !");
-
 	mem_free_block_t *ptr_current = first_free_block;
 	mem_free_block_t *min_fb = first_free_block;
-	//Comment utiliser calcul du dessous ?
-	//int size = first_free_block->size_total_fb - wanted_size;
 
 	while (ptr_current != NULL){
+		//on regarde si la taille courante est sup ou égale à celle voulue ET si elle est inférieure à la taille minimale
 		if (ptr_current->size_total_fb >= wanted_size && ptr_current->size_total_fb < min_fb->size_total_fb){
 			min_fb = ptr_current;
 		}
 		ptr_current = ptr_current->ptr_next_fb;
 	}
-	// TODO : Comment retourner NULL ?
-	return min_fb;
+	
+	// évaluation pour vérifier que la taille minimale bien sup ou égale à celle voulue
+	//(ex: cas où min_db est toujours = first_fb, la condition taille first fb >= taille voulue pas encore évaluée)
+	if (min_fb->size_total_fb >= wanted_size){
+		return min_fb;
+	}
+	return NULL;
 }
 
 //-------------------------------------------------------------
 //renvoi du plus petit bloc libre de taille supérieur ou égale à wanted_size
 mem_free_block_t *mem_worst_fit(mem_free_block_t *first_free_block, size_t wanted_size) {
 
-	assert(! "NOT IMPLEMENTED !");
-
    	mem_free_block_t *ptr_current = first_free_block;
 	mem_free_block_t *max_fb = first_free_block;
-	//Comment utiliser calcul du dessous ?
-	//int size = first_free_block->size_total_fb - wanted_size;
 
 	while (ptr_current != NULL){
+		//on regarde si la taille courante est sup ou égale à celle voulue ET si elle est inférieure à la taille minimale
 		if (ptr_current->size_total_fb >= wanted_size && ptr_current->size_total_fb > max_fb->size_total_fb){
 			max_fb = ptr_current;
 		}
 		ptr_current = ptr_current->ptr_next_fb;
 	}
-	// TODO : Comment retourner NULL ?
-	return max_fb;
+
+	// évaluation pour vérifier que la taille maximale bien sup ou égale à celle voulue
+	//(ex: cas où max_db est toujours = first_fb, la condition taille first fb >= taille voulue pas encore évaluée)
+	if (max_fb->size_total_fb >= wanted_size){
+		return max_fb;
+	}
+	return NULL;
 }
