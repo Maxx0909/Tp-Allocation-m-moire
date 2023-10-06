@@ -41,14 +41,14 @@ void mem_init() {
     //TODO: implement
 
 	//init de la taille de la mémoire
-	glb_memory.size_memory = mem_space_get_size()-1;
+	glb_memory.size_memory = mem_space_get_size();
 
 	//init du premier et unique bloc dans la mémoire
 	mem_free_block_t * first_memory_bloc = (mem_free_block_t *)  mem_space_get_addr();
 
 	first_memory_bloc->ptr_next_fb = NULL;
 
-	first_memory_bloc->size_total_fb = glb_memory.size_memory - sizeof(mem_free_block_t *);
+	first_memory_bloc->size_total_fb = glb_memory.size_memory;
 
 	//init l'adresse de la mémoire
 	glb_memory.first_fb = first_memory_bloc;
@@ -100,23 +100,27 @@ void *mem_alloc(size_t size) {
 
 		// bloc de taille assez grand trouvé à la postition courante
 
+	//conserver la taille du bloc libre
+	size_t size_fb = current->size_total_fb;
+
 	//création d'un bloc busy
 	mem_busy_block_t * new_busy_bloc = (mem_busy_block_t *) current;
 
 	new_busy_bloc->size_total_bb = size + sizeof(mem_busy_block_t);
 
 	//calcul de la taille restante pour s'assurer de pouvoir inserer un bloc libre après le bloc occupé
-	size_t remaning_size = current->size_total_fb - new_busy_bloc->size_total_bb;
-	
+
+	size_t remaning_size =  size_fb - new_busy_bloc->size_total_bb;
+
 	//si la taille est suffisante
 	if(remaning_size > sizeof(mem_free_block_t)){
 		//création d'un nouveau bloc libre
 		mem_free_block_t * new_free_bloc;
 		
-		new_free_bloc = (mem_free_block_t *) ((char *) current + size + sizeof(mem_busy_block_t));
+		new_free_bloc = (mem_free_block_t *) ( current + size + sizeof(mem_busy_block_t));
 
 		//taille nouveau bloc libre
-		new_free_bloc->size_total_fb = current->size_total_fb - sizeof(mem_busy_block_t) - size;
+		new_free_bloc->size_total_fb = size_fb - sizeof(mem_busy_block_t) - size;
 
 			//raccorder la liste chainée
 		//si current pas le premier bloc
@@ -218,6 +222,9 @@ void mem_set_fit_handler(mem_fit_function_t *mff) {
 //renvoi du premier bloc libre de taille supérieur ou égale à wanted_size
 mem_free_block_t *mem_first_fit(mem_free_block_t *first_free_block, size_t wanted_size) {
 
+
+	assert(! "NOT IMPLEMENTED !");
+
 	mem_free_block_t *ptr_current = first_free_block;
 	//parcours de la liste des blocs libres
 	while (ptr_current != NULL){
@@ -232,6 +239,9 @@ mem_free_block_t *mem_first_fit(mem_free_block_t *first_free_block, size_t wante
 //-------------------------------------------------------------
 //renvoi du plus petit bloc libre de taille supérieur ou égale à wanted_size
 mem_free_block_t *mem_best_fit(mem_free_block_t *first_free_block, size_t wanted_size) {
+
+	assert(! "NOT IMPLEMENTED !");
+
 	mem_free_block_t *ptr_current = first_free_block;
 	mem_free_block_t *min_fb = first_free_block;
 	//Comment utiliser calcul du dessous ?
@@ -250,6 +260,9 @@ mem_free_block_t *mem_best_fit(mem_free_block_t *first_free_block, size_t wanted
 //-------------------------------------------------------------
 //renvoi du plus petit bloc libre de taille supérieur ou égale à wanted_size
 mem_free_block_t *mem_worst_fit(mem_free_block_t *first_free_block, size_t wanted_size) {
+
+	assert(! "NOT IMPLEMENTED !");
+
    	mem_free_block_t *ptr_current = first_free_block;
 	mem_free_block_t *max_fb = first_free_block;
 	//Comment utiliser calcul du dessous ?
