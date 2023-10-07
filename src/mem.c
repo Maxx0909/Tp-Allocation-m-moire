@@ -172,8 +172,8 @@ size_t mem_get_size(void * zone)
  * Free an allocaetd bloc.
 **/
 void mem_free(void *zone) {
-    //TODO: implement
 
+		//les ptrs de la liste chainée
 	//var pour garder le bloc précédent
 	mem_free_block_t * free_precedent_block = NULL;
 
@@ -185,24 +185,38 @@ void mem_free(void *zone) {
 	while (last_free_b->ptr_next_fb != NULL){
 		last_free_b = last_free_b->ptr_next_fb;
 	}
-	
-	
+
+		//le bloc occupé
 
 	//converti le pointeur de la zone en un pointeur de bloc occupé
-	mem_busy_block_t * ptr_busy_bloc = (mem_busy_block_t *) zone;
+	// - sizeof(mem_busy_block_t) pr récup adresse du bloc occupé sinon pointe sur adresse de la zone du bloc et on laisse le header du busy bloc
+	mem_busy_block_t * ptr_busy_bloc = (mem_busy_block_t *) (zone - sizeof(mem_busy_block_t));
+
+	//taille du bloc occupé
+	size_t size_total_busy_bloc = ptr_busy_bloc->size_total_bb;
 
 
-			//4 cas à prendre en compte
-
-		//1 : occupé à gauche et à droite => 1 seul zone à free et raccorder dans la liste
+		//le new free bloc
 
 	//création du nouveau free bloc
 	mem_free_block_t * new_free_block;
 
-	//Note Elsa : je me trompe peut-être mais :
-	//mem_free_block_t * new_free_block = (mem_free_block_t *) zone;
+	//associer le pointeur du free bloc à l'adresse du bloc occupé
+	new_free_block = (mem_free_block_t *) ptr_busy_bloc;
 
-	new_free_block->size_total_fb = sizeof(mem_free_block_t) + ptr_busy_bloc->size_total_bb;
+	//init des para du new fb
+
+	//pb ici sur la taille du bloc libre ??? taille = taille header fb + taille du bloc occupé ??
+	//logiquement nouvelle taille = ancienne taille de tout le bloc occupé en comptant le header du bloc occupé
+	new_free_block->size_total_fb = size_total_busy_bloc;
+	new_free_block->ptr_next_fb = NULL;
+
+
+			//4 cas à prendre en compte pour fusion/raccordement liste chainée
+		//1 : occupé à gauche et à droite => 1 seul zone à free et raccorder dans la liste
+		//2 : occupé à droite => fusion avec le bloc libre à droite et raccorder dans la liste
+		//3 : occupé à gauche => fusion avec le bloc libre à gauche et raccorder dans la liste
+		//4 : occupé ni à gauche ni à droite => 2 zones à free et raccorder dans la liste
 
 		//raccorder dans la liste chainée
 
@@ -210,48 +224,55 @@ void mem_free(void *zone) {
 	if (new_free_block < free_b){
 		new_free_block->ptr_next_fb = free_b;
 		glb_memory.first_fb = new_free_block;
+
 	} else if (new_free_block > last_free_b){ //cas où notre fb devient le dernier fb
 		new_free_block->ptr_next_fb = NULL;
 		last_free_b->ptr_next_fb = new_free_block;
+
 	} else { //cas où notre fb il faut inserer entre 2 fb
-		while(free_b->ptr_next_fb < new_free_block){
+
+		//recherche du bloc libre précédent le new free bloc
+		while(free_b->ptr_next_fb != new_free_block){
 			free_b = free_b->ptr_next_fb;
 		}
+
 		new_free_block->ptr_next_fb = free_b->ptr_next_fb;
 		free_b->ptr_next_fb = new_free_block;
 	}
 	
+			//gestion de fusions des blocs libres 
 
+			//fusion à droite si possible (i.e bloc libre collé à droite)
 
-
-		//2 : occupé à droite libre à gauche => fusion à gauche
-		
-		//cas où le fb gauche est le dernier fb
-
-		//cas où le fb gauche a un suivant
-		
-
-		//3 : occupé à gauche libre à droite => fusion à droite + supprimer bloc libre droite
-		
-		//init du bloc précédent
-		/*if ((new_free_block + new_free_block->size_total_fb) != free_b) {
-			free_precedent_block = ;
-		}*/
-
-		//cas où le fb droit a un précédent
-		if (free_precedent_block){
-			free_precedent_block->ptr_next_fb = new_free_block;
-		} else {   //cas où le fb droit est le premier fb
-			glb_memory.first_fb = new_free_block;
+	//possible uniquement si le bloc est pas le dernier
+	if(new_free_block->ptr_next_fb != NULL){
+		//si le bloc suivant == le bloc courant + la taille du bloc courant
+		if(new_free_block->ptr_next_fb == new_free_block + 1){
+			new_free_block->size_total_fb = new_free_block->size_total_fb + new_free_block->ptr_next_fb->size_total_fb;
+			new_free_block->ptr_next_fb = new_free_block->ptr_next_fb->ptr_next_fb;
 		}
-		
+	}
 
+		//fusion à gauche si possible
 
-		//4 : libre à gauche et droite => fusion à droite et à gauche
+	//possible uniquement si le bloc est pas le premier
+	if(new_free_block != glb_memory.first_fb){
 
+		free_precedent_block = glb_memory.first_fb;
 
+		//recherhc du bloc précédent le new free bloc
+		while(free_precedent_block->ptr_next_fb != new_free_block){
+			free_precedent_block = free_precedent_block->ptr_next_fb;
+		}
 
+		//si le new bloc == le bloc précédent + prochain bloc
+		if(free_precedent_block + 1 == new_free_block){
+			free_precedent_block->size_total_fb = free_precedent_block->size_total_fb + new_free_block->size_total_fb;
+			free_precedent_block->ptr_next_fb = new_free_block->ptr_next_fb;
+		}
+	}
 
+		// pas besoin de gerer fusion à droite et à gauche : déjà gérer par les 2 cas précédents
 
 	//assert(! "NOT IMPLEMENTED !");
 }
