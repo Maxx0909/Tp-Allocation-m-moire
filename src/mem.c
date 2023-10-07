@@ -225,8 +225,27 @@ void mem_free(void *zone) {
 
 
 		//2 : occupé à droite libre à gauche => fusion à gauche
+		
+		//cas où le fb gauche est le dernier fb
+
+		//cas où le fb gauche a un suivant
+		
 
 		//3 : occupé à gauche libre à droite => fusion à droite + supprimer bloc libre droite
+		
+		//init du bloc précédent
+		/*if ((new_free_block + new_free_block->size_total_fb) != free_b) {
+			free_precedent_block = ;
+		}*/
+
+		//cas où le fb droit a un précédent
+		if (free_precedent_block){
+			free_precedent_block->ptr_next_fb = new_free_block;
+		} else {   //cas où le fb droit est le premier fb
+			glb_memory.first_fb = new_free_block;
+		}
+		
+
 
 		//4 : libre à gauche et droite => fusion à droite et à gauche
 
