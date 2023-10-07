@@ -179,6 +179,13 @@ void mem_free(void *zone) {
 
 	//on récupére le tout premier bloc libre
 	mem_free_block_t * free_b = glb_memory.first_fb;
+
+	// récupérer le dernier bloc libre
+	mem_free_block_t * last_free_b = free_b;
+	while (last_free_b->ptr_next_fb != NULL){
+		last_free_b = last_free_b->ptr_next_fb;
+	}
+	
 	
 
 	//converti le pointeur de la zone en un pointeur de bloc occupé
@@ -191,16 +198,37 @@ void mem_free(void *zone) {
 
 	//création du nouveau free bloc
 	mem_free_block_t * new_free_block;
+	
+	//Note Elsa : je me trompe peut-être mais :
+	//mem_free_block_t * new_free_block = (mem_free_block_t *) zone;
 
 	new_free_block->size_total_fb = sizeof(mem_free_block_t) + ptr_busy_bloc->size_total_bb;
 
 		//raccorder dans la liste chainée
 
 	//cas où notre fb devient le premier fb
+	if (new_free_block < free_b){
+		new_free_block->ptr_next_fb = free_b;
+		glb_memory.first_fb = new_free_block;
+	}
+	
 
 	//cas où notre fb devient le dernier fb
+	if (new_free_block > last_free_b){
+		new_free_block->ptr_next_fb = NULL;
+		last_free_b->ptr_next_fb = new_free_block;
+	}
+
 
 	//cas où notre fb il faut inserer entre 2 fb
+	if (free_b < new_free_block && new_free_block < last_free_b){
+		while(free_b->ptr_next_fb < new_free_block){
+			free_b = free_b->ptr_next_fb;
+		}
+		new_free_block->ptr_next_fb = free_b->ptr_next_fb;
+		free_b->ptr_next_fb = new_free_block;
+	}
+	
 
 
 
