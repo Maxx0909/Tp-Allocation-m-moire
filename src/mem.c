@@ -198,7 +198,7 @@ void mem_free(void *zone) {
 
 	//création du nouveau free bloc
 	mem_free_block_t * new_free_block;
-	
+
 	//Note Elsa : je me trompe peut-être mais :
 	//mem_free_block_t * new_free_block = (mem_free_block_t *) zone;
 
@@ -210,18 +210,10 @@ void mem_free(void *zone) {
 	if (new_free_block < free_b){
 		new_free_block->ptr_next_fb = free_b;
 		glb_memory.first_fb = new_free_block;
-	}
-	
-
-	//cas où notre fb devient le dernier fb
-	if (new_free_block > last_free_b){
+	} else if (new_free_block > last_free_b){ //cas où notre fb devient le dernier fb
 		new_free_block->ptr_next_fb = NULL;
 		last_free_b->ptr_next_fb = new_free_block;
-	}
-
-
-	//cas où notre fb il faut inserer entre 2 fb
-	if (free_b < new_free_block && new_free_block < last_free_b){
+	} else { //cas où notre fb il faut inserer entre 2 fb
 		while(free_b->ptr_next_fb < new_free_block){
 			free_b = free_b->ptr_next_fb;
 		}
