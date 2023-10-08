@@ -83,6 +83,12 @@ void *mem_alloc(size_t size) {
 	//on récupére le tout premier bloc libre
 	mem_free_block_t * free_b = glb_memory.first_fb;
 
+	//gérer cas pas de bloc libre
+	if(!free_b){
+		fprintf(stderr,"Erreur allocation : Pas de bloc libre\n");
+		return NULL;
+	}
+
 	//variable pour stocker le bloc libre avant celui courant
 	mem_free_block_t * ptr_free_block_before = NULL;
 	
@@ -182,7 +188,7 @@ void mem_free(void *zone) {
 
 	// récupérer le dernier bloc libre
 	mem_free_block_t * last_free_b = free_b;
-	while (last_free_b->ptr_next_fb != NULL){
+	while (last_free_b && last_free_b->ptr_next_fb != NULL){
 		last_free_b = last_free_b->ptr_next_fb;
 	}
 
@@ -223,23 +229,27 @@ void mem_free(void *zone) {
 		//raccorder dans la liste chainée
 
 	//cas où notre fb devient le premier fb
-	if (new_free_block < free_b){
+	if (new_free_block < free_b || free_b == NULL){
 		new_free_block->ptr_next_fb = free_b;
 		glb_memory.first_fb = new_free_block;
 
-	} else if (new_free_block > last_free_b){ //cas où notre fb devient le dernier fb
+	} else if (last_free_b && new_free_block > last_free_b){ //cas où notre fb devient le dernier fb
 		new_free_block->ptr_next_fb = NULL;
 		last_free_b->ptr_next_fb = new_free_block;
 
 	} else { //cas où notre fb il faut inserer entre 2 fb
 
 		//recherche du bloc libre précédant le nouveau bloc libre
-		while(free_b->ptr_next_fb && free_b->ptr_next_fb < new_free_block){
+		while(free_b && free_b->ptr_next_fb < new_free_block){
 			free_b = free_b->ptr_next_fb;
 		}
 
-		new_free_block->ptr_next_fb = free_b->ptr_next_fb;
-		free_b->ptr_next_fb = new_free_block;
+		if(free_b){
+			new_free_block->ptr_next_fb = free_b->ptr_next_fb;
+			free_b->ptr_next_fb = new_free_block;
+		}
+
+
 	}
 	
 			//gestion de fusions des blocs libres 
@@ -263,12 +273,12 @@ void mem_free(void *zone) {
 		free_precedent_block = glb_memory.first_fb;
 
 		//recherche du bloc précédent le new free bloc
-		while(free_precedent_block->ptr_next_fb && free_precedent_block->ptr_next_fb != new_free_block){
+		while(free_precedent_block && free_precedent_block->ptr_next_fb != new_free_block){
 			free_precedent_block = free_precedent_block->ptr_next_fb;
 		}
 
 		//si le new bloc == bloc précédent + taille du bloc précédent
-		if(new_free_block == (void*) free_precedent_block + free_precedent_block->size_total_fb){
+		if(free_precedent_block && new_free_block == (void*) free_precedent_block + free_precedent_block->size_total_fb){
 			free_precedent_block->size_total_fb = free_precedent_block->size_total_fb + new_free_block->size_total_fb;
 			free_precedent_block->ptr_next_fb = new_free_block->ptr_next_fb;
 		}
