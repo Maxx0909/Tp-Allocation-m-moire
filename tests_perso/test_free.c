@@ -30,10 +30,15 @@ int main(int argc, char *argv[]) {
     adr = mem_alloc(1);
     mem_free(adr);
 
+
+    /* En soit mem_alloc alloue 10 octet à cause de la conversion en size_t
+        En effet, size_t est un entier positif
     printf("Test du free de -10 octets\n");
 
     adr = mem_alloc(-10);
     mem_free(adr);
+
+    */
 
     printf("Test réussi\n");
 
@@ -43,15 +48,19 @@ int main(int argc, char *argv[]) {
 
     printf("Test du free de la mémoire entière\n");
 
-    adr = mem_alloc(mem_space_get_size());
+    //-100 ici car on doit enlever l'espace pour le header (100 est une valeur arbitraire)
+    adr = mem_alloc(mem_space_get_size()-100);
     mem_free(adr);
 
     printf("on retente d'allouer après le free\n");
 
-    adr = mem_alloc(mem_space_get_size());
+    adr = mem_alloc(mem_space_get_size()-100);
     assert(adr != NULL);
 
     printf("Test réussi\n");
+
+    //réinisialisation de la mémoire
+    mem_init();
 
     /****** TEST 3 ******/
 
@@ -65,9 +74,9 @@ int main(int argc, char *argv[]) {
 
     /****** TEST 4 ******/
 
-    printf("Test 4 : Free d'une adresse qui ne nous apprtient pas\n");
+    printf("Test 4 : Free d'une adresse qui ne nous appartient pas\n");
 
-    printf("Test du free d'une adresse qui ne nous apprtient pas\n");
+    printf("Test du free d'une adresse qui ne nous appartient pas\n");
 
     adr = mem_alloc(1);
     mem_free(adr + 1);

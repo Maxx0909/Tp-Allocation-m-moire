@@ -179,6 +179,12 @@ size_t mem_get_size(void * zone)
 **/
 void mem_free(void *zone) {
 
+	//gérer cas zone = NULL
+	if(zone == NULL){
+		fprintf(stderr,"Erreur free : zone = NULL\n");
+		return;
+	}
+
 		//les ptrs de la liste chainée
 	//var pour garder le bloc précédent
 	mem_free_block_t * free_precedent_block = NULL;
