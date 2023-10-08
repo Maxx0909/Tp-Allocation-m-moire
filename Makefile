@@ -6,11 +6,13 @@ MV=mv
 all:
 	$(MAKE) -C src
 	$(MAKE) -C tests
+	$(MAKE) -C tests_perso
 
 # nettoyer les sources
 clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C tests clean
+	$(MAKE) -C tests_perso clean
 
 # compiler les tests
 tests: all
@@ -33,6 +35,9 @@ googletest:
 distclean: clean testclean
 	$(MAKE) -C src distclean
 
+tests_perso: all
+	$(MAKE) -C tests_perso all
+
 # nettoyage
 testclean:
 ifeq ($(TESTS_C_DIR_EXISTS), 1)
@@ -40,4 +45,4 @@ ifeq ($(TESTS_C_DIR_EXISTS), 1)
 endif
 	$(MAKE) -C tests clean
 
-.PHONY: clean all googletest test test_all distclean
+.PHONY: clean all googletest test test_all tests_perso distclean
