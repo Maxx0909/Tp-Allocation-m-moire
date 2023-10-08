@@ -186,6 +186,8 @@ void mem_free(void *zone) {
 		last_free_b = last_free_b->ptr_next_fb;
 	}
 
+	
+
 		//le bloc occupé
 
 	//converti le pointeur de la zone en un pointeur de bloc occupé
@@ -231,8 +233,8 @@ void mem_free(void *zone) {
 
 	} else { //cas où notre fb il faut inserer entre 2 fb
 
-		//recherche du bloc libre précédent le new free bloc
-		while(free_b->ptr_next_fb && free_b->ptr_next_fb != new_free_block){
+		//recherche du bloc libre précédant le nouveau bloc libre
+		while(free_b->ptr_next_fb && free_b->ptr_next_fb < new_free_block){
 			free_b = free_b->ptr_next_fb;
 		}
 
@@ -247,7 +249,7 @@ void mem_free(void *zone) {
 	//possible uniquement si le bloc est pas le dernier
 	if(new_free_block->ptr_next_fb != NULL){
 		//si le bloc suivant == le bloc courant + la taille du bloc courant
-		if(new_free_block->ptr_next_fb == new_free_block + 1){
+		if(new_free_block->ptr_next_fb == (void*) new_free_block + new_free_block->size_total_fb ){
 			new_free_block->size_total_fb = new_free_block->size_total_fb + new_free_block->ptr_next_fb->size_total_fb;
 			new_free_block->ptr_next_fb = new_free_block->ptr_next_fb->ptr_next_fb;
 		}
@@ -260,13 +262,13 @@ void mem_free(void *zone) {
 
 		free_precedent_block = glb_memory.first_fb;
 
-		//recherhc du bloc précédent le new free bloc
+		//recherche du bloc précédent le new free bloc
 		while(free_precedent_block->ptr_next_fb && free_precedent_block->ptr_next_fb != new_free_block){
 			free_precedent_block = free_precedent_block->ptr_next_fb;
 		}
 
-		//si le new bloc == le bloc précédent + prochain bloc
-		if(free_precedent_block + 1 == new_free_block){
+		//si le new bloc == bloc précédent + taille du bloc précédent
+		if(new_free_block == (void*) free_precedent_block + free_precedent_block->size_total_fb){
 			free_precedent_block->size_total_fb = free_precedent_block->size_total_fb + new_free_block->size_total_fb;
 			free_precedent_block->ptr_next_fb = new_free_block->ptr_next_fb;
 		}
