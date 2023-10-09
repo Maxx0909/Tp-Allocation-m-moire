@@ -341,15 +341,12 @@ mem_free_block_t *mem_first_fit(mem_free_block_t *first_free_block, size_t wante
 
 	mem_free_block_t *ptr_current = first_free_block;
 	//TODO : sortir le return de la boucle si possible
-	//parcours de la liste des blocs libres
-	while (ptr_current != NULL){
-		if (ptr_current->size_total_fb >= wanted_size){
-			return ptr_current;
-		}
+	//parcours de la liste des blocs libres, on sort quand NULL ou si la taille total du ptr_current >= taille voulue
+	while (ptr_current && ptr_current->size_total_fb < wanted_size){
 		ptr_current = ptr_current->ptr_next_fb;
 	}
-	//il n'existe pas
-	return NULL;
+	//sera à null si pas de bloc trouvé
+	return ptr_current;
 }
 //-------------------------------------------------------------
 //renvoi du plus petit bloc libre de taille supérieur ou égale à wanted_size
