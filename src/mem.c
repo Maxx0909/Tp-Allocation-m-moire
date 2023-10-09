@@ -185,6 +185,12 @@ void mem_free(void *zone) {
 		return;
 	}
 
+	//gérer cas free dans une zone qui n'est pas comprise dans les bornes de la mémoire
+	if(zone < mem_space_get_addr() || zone > mem_space_get_addr() + mem_space_get_size()){
+		fprintf(stderr,"Erreur free : zone non comprise dans les bornes de la mémoire\n");
+		return;
+	}
+
 		//les ptrs de la liste chainée
 	//var pour garder le bloc précédent
 	mem_free_block_t * free_precedent_block = NULL;
@@ -197,8 +203,6 @@ void mem_free(void *zone) {
 	while (last_free_b && last_free_b->ptr_next_fb != NULL){
 		last_free_b = last_free_b->ptr_next_fb;
 	}
-
-	
 
 		//le bloc occupé
 

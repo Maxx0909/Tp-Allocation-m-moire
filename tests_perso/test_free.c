@@ -92,6 +92,22 @@ int main(int argc, char *argv[]) {
 
     printf("Test réussi\n");
 
+    /****** TEST 5 ******/
+
+    printf("Test 5 : Free d'une adresse qui n'est pas dans la zone de la mémoire\n");
+
+    printf("Test du free d'une adresse qui n'est pas dans la zone de la mémoire\n");
+
+    adr = mem_alloc(1);
+    mem_free(adr + mem_space_get_size());
+    
+    adr = mem_alloc(1);
+    mem_free(adr - mem_space_get_size());
+
+    printf("Test réussi\n");
+
+    /****** FIN DES TESTS ******/
+
     printf("Fin du test de free\n");
 
 }
