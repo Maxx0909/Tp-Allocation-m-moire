@@ -340,8 +340,7 @@ void mem_set_fit_handler(mem_fit_function_t *mff) {
 mem_free_block_t *mem_first_fit(mem_free_block_t *first_free_block, size_t wanted_size) {
 
 	mem_free_block_t *ptr_current = first_free_block;
-	//TODO : sortir le return de la boucle si possible
-	//parcours de la liste des blocs libres, on sort quand NULL ou si la taille total du ptr_current >= taille voulue
+	//parcours de la liste des blocs libres, on sort quand NULL ou si la taille totale du ptr_current >= taille voulue
 	while (ptr_current && ptr_current->size_total_fb < wanted_size){
 		ptr_current = ptr_current->ptr_next_fb;
 	}
