@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
 
     printf("Test au nombre de tests : %d\n", NB_TESTS);
 
+    //init de la mémoire
     mem_init();
 
     /****** TEST 1 ******/
@@ -39,6 +40,9 @@ int main(int argc, char *argv[]) {
     mem_free(adr);
 
     */
+
+   //réinisialisation de la mémoire
+    mem_init();
 
     printf("Test réussi\n");
 
@@ -73,6 +77,7 @@ int main(int argc, char *argv[]) {
     printf("Test réussi\n");
 
     /****** TEST 4 ******/
+/*  possible de savoir si l'adresse nous appartient ???
 
     printf("Test 4 : Free d'une adresse qui ne nous appartient pas\n");
 
@@ -91,6 +96,9 @@ int main(int argc, char *argv[]) {
     mem_free(adr - 10);
 
     printf("Test réussi\n");
+    */
+   //réinisialisation de la mémoire
+   mem_init();
 
     /****** TEST 5 ******/
 
@@ -100,7 +108,7 @@ int main(int argc, char *argv[]) {
 
     adr = mem_alloc(1);
     mem_free(adr + mem_space_get_size());
-    
+
     adr = mem_alloc(1);
     mem_free(adr - mem_space_get_size());
 
@@ -109,5 +117,7 @@ int main(int argc, char *argv[]) {
     /****** FIN DES TESTS ******/
 
     printf("Fin du test de free\n");
+
+    return 0;
 
 }

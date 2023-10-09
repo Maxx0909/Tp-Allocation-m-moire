@@ -5,12 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NB_TESTS 3
+#define NB_TESTS 2
 
 int main(int argc, char *argv[]) {
 
     printf("Début du test de l'allocation\n");
 
+    //init de la mémoire
     mem_init();
 
     /****** TEST 1 ******/
@@ -39,6 +40,9 @@ int main(int argc, char *argv[]) {
 */
     printf("Test réussi\n");
 
+    //réinisialisation de la mémoire
+    mem_init();
+
     /****** TEST 2 ******/
 
     printf("Test 2 : Allocation de la mémoire entière\n");
@@ -56,6 +60,9 @@ int main(int argc, char *argv[]) {
 
     printf("Test réussi\n");
 
+    /*FIN des tests*/
+
     printf("Fin du test de l'allocation\n");
 
+    return 0;
 }
