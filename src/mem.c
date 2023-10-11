@@ -106,6 +106,15 @@ void *mem_alloc(size_t size) {
 
 		// bloc de taille assez grand trouvé à la postition courante
 
+	//gestion des cas de stratégie d'allocation
+	if(glb_memory.fit_fct == mem_best_fit){
+		free_b = mem_best_fit(free_b,size);
+	} else if (glb_memory.fit_fct == mem_worst_fit){
+		free_b = mem_worst_fit(free_b,size);
+	} else {
+		free_b = mem_first_fit(free_b,size);
+	}
+
 	//conserver la taille du bloc libre
 	size_t size_fb = free_b->size_total_fb;
 

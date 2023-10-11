@@ -52,6 +52,7 @@ int main(int argc, char *argv[]){
     printf("Test 2 : Allocation entre deux bloc mais pas le premier bloc libre : le plus petit\n");
 
     mem_init();
+    mem_set_fit_handler(&mem_best_fit);
 
     //allocation de 10 octets
     adr = mem_alloc(15);
