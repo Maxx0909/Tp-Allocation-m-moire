@@ -8,12 +8,10 @@
 
 int main(int argc, char *argv[]){
 
-    printf("Début du test de l'allocation en best fit\n");
+    printf("** Début du test de l'allocation en best fit **\n");
 
-    //init de la mémoire et init des différents fragments
-
+    //init de la mémoire et init de la stratégie
     mem_init();
-
     mem_set_fit_handler(&mem_best_fit);
 
     //allocation de 10 octets
@@ -34,22 +32,23 @@ int main(int argc, char *argv[]){
 
     /*** TEST 1 ***/
 
-    printf("Test 1 : Allocation de 10 octets\n");
+    printf("Test 1 : Allocation de 10 octets entre deux zone occupées\n");
 
+    //créer la zone libre entre adr et adr3
     mem_free(adr2);
 
-    //allocation de 10 octets
+    //allocation de 10 octets entre adr et adr3
     void *adr5 = mem_alloc(10);
     assert(adr5 != NULL);
 
     //meilleur solution = plus petite zone ici entre adr et adr3
     assert(adr5 < adr3);
 
-    printf("Test réussi\n");
+    printf("Test 1 réussi\n");
 
     /*** TEST 2 ***/
 
-    printf("Test 2 : Allocation entre deux bloc mais pas le premier bloc libre : le plus petit\n");
+    printf("Test 2 : Allocation entre deux bloc occupé avec plusieurs trous entre les blocs\n");
 
     mem_init();
     mem_set_fit_handler(&mem_best_fit);
@@ -75,23 +74,21 @@ int main(int argc, char *argv[]){
     assert(adr5 != NULL);
 
     //libération bloc 2 et 4
-
     mem_free(adr2);
     mem_free(adr4);
 
     //allocation de 2 octets
-
     void *adr6 = mem_alloc(2);
 
     //meilleur solution = plus petite zone ici entre adr3 et adr5
     assert(adr6 < adr5);
     assert(adr6 > adr3);
 
-    printf("Test réussi\n");
+    printf("Test 2 réussi\n");
 
     /*** FIN DES TESTS ***/
 
-    printf("Fin du test de l'allocation en best fit\n");
+    printf("\n** Fin du test de l'allocation en best fit **\n");
 
     return 0;
 

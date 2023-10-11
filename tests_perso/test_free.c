@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
     printf("-> Test 1 réussi\n");
 
 
-   //réinitialisation de la mémoire
+    //réinitialisation de la mémoire
     mem_init();
 
     /****** TEST 2 ******/
